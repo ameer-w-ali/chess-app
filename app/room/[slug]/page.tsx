@@ -1,6 +1,11 @@
 import Chess from "@/components/chess";
+import { useRouter } from "next/router";
 
-export default function page({ params }: { params: string }) {
+export default function page() {
+  const router = useRouter();
+  const { slug } = router.query;
+  console.log(slug);
+  
   return (
     <div className="flex h-svh px-12 py-4 space-x-2 bg-neutral-900">
       <Chess />
