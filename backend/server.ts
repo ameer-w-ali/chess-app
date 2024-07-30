@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
-import { ERROR } from "./lib/message";
-import { Manager } from "./lib/manager";
+import { ERROR } from "./utils/message";
+import { Manager } from "./utils/manager";
 
 const manager = new Manager();
 let users = 0;

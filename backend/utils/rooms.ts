@@ -23,7 +23,10 @@ export class Room {
       this.users = this.players.length;
     } else {
       player.send(
-        JSON.stringify({ type: ERROR, payload:{message: "Only 2 Players are allowed"} })
+        JSON.stringify({
+          type: ERROR,
+          payload: { message: "Only 2 Players are allowed" },
+        })
       );
       player.close();
     }
@@ -51,7 +54,7 @@ export class Room {
 
   MessageHandler(socket: WebSocket) {
     socket.on("message", (data) => {
-      const {type,payload} = JSON.parse(data.toString());
+      const { type, payload } = JSON.parse(data.toString());
       switch (type) {
         case MOVE:
           this.handleMove(socket, payload.move);
@@ -60,7 +63,12 @@ export class Room {
           this.handleGameOver(socket);
           break;
         default:
-          socket.send(JSON.stringify({type:ERROR,payload:{error:"invalid message type"}}))
+          socket.send(
+            JSON.stringify({
+              type: ERROR,
+              payload: { error: "invalid message type" },
+            })
+          );
       }
     });
 
@@ -69,7 +77,7 @@ export class Room {
     });
   }
 
-  private handleMove(player: WebSocket, move: {from:string,to:string}) {
+  private handleMove(player: WebSocket, move: { from: string; to: string }) {
     if (this.game) {
       console.log(move);
       this.game.makeMove(player, move);

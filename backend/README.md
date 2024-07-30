@@ -1,15 +1,21 @@
-# backend
+# backend WebSocket Server
+
+this is a simple WebSocket server that allows two players to play chess against each other.
 
 To install dependencies:
 
 ```bash
-bun install
+npm install
 ```
 
 To run:
 
 ```bash
-bun run index.ts
+npm run dev
 ```
 
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+To build:
+
+```bash
+npm run build
+```
