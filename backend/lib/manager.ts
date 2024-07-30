@@ -1,5 +1,5 @@
-import { WebSocket } from "ws";
 import { Room } from "./rooms";
+import type { ServerWebSocket } from "bun";
 
 export class Manager {
   private rooms: Room[];
@@ -12,7 +12,7 @@ export class Manager {
     return this.rooms.find((rm) => rm.code === code);
   }
 
-  fetchRoom(code: string, user: WebSocket) {
+  fetchRoom(code: string, user: ServerWebSocket<unknown>) {
     let room = this.getRoom(code);
 
     if (room) {

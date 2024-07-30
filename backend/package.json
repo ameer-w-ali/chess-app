@@ -1,12 +1,13 @@
 {
   "name": "backend",
-  "module": "index.ts",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest"
   },
   "scripts": {
-    "dev":"bun ."
+    "dev":"bun --watch server.ts",
+    "build":"bun build server.ts --outdir dist --target node --minify",
+    "clean":"rm -rf dist"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

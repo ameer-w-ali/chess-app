@@ -1,14 +1,14 @@
-import { WebSocket } from "ws";
 import { ERROR, GAME_OVER, INIT, MOVE, Status } from "./message";
 import { Chess } from "chess.js";
+import type { ServerWebSocket } from "bun";
 
 export class Game {
-  player1: WebSocket;
-  player2: WebSocket;
+  player1: ServerWebSocket<unknown>;
+  player2: ServerWebSocket<unknown>;
   board: Chess;
   history: { move: { from: string; to: string }; timestamp: number }[];
 
-  constructor(p1: WebSocket, p2: WebSocket) {
+  constructor(p1: ServerWebSocket<unknown>, p2: ServerWebSocket<unknown>) {
     this.player1 = p1;
     this.player2 = p2;
     this.board = new Chess();
@@ -39,7 +39,7 @@ export class Game {
     );
   }
 
-  makeMove(socket: WebSocket, move: { from: string; to: string }) {
+  makeMove(socket: ServerWebSocket<unknown>, move: { from: string; to: string }) {
     const turn = this.board.turn() === "w" ? this.player1 : this.player2;
     if (socket !== turn) {
       socket.send(

@@ -1,4 +1,7 @@
-# backend
+# backend Websocket Server
+
+This is a simple websocket server that can be used to create a game room.
+
 
 To install dependencies:
 
@@ -9,7 +12,9 @@ bun install
 To run:
 
 ```bash
-bun run index.ts
+bun run dev
 ```
-
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+To build:
+```sh
+bun run build
+```
