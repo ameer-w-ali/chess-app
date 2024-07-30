@@ -1,5 +1,5 @@
 import { Manager } from "./lib/manager";
-import { ERROR, GAME_OVER, MOVE } from "./lib/message";
+import { ERROR, GAME_OVER, MOVE, PING, STATE } from "common";
 
 type Data = {
   code: string;
@@ -17,9 +17,8 @@ const server = Bun.serve<Data>({
     const params = new URLSearchParams(url.search);
     const code = params.get("code") as string;
 
-    if (!code) return new Response("invalid room code",{status: 400});
-
     if (/^\/room/.test(path)) {
+      if (!code) return new Response("invalid room code", { status: 400 });
       const success = server.upgrade(request, { data: { code } });
       if (!success) throw new Error("unable to upgrade the request");
       return new Response("WebSocket Server", {
@@ -35,10 +34,10 @@ const server = Bun.serve<Data>({
     throw new Error("Page not found");
   },
   error(error) {
-    return new Response(`<pre>${error}\n${error.stack}</pre>`, {
+    return new Response(`${error.stack}`, {
       status: 500,
       headers: {
-        "Content-Type": "text/html",
+        "Content-Type": "text/text",
       },
     });
   },
@@ -47,14 +46,29 @@ const server = Bun.serve<Data>({
       console.log(`user count:${++count}`);
       const room = manager.fetchRoom(ws.data.code, ws);
       if (!room) {
-        ws.close(1011,'Room not found');
+        ws.close(1011, "Room not found");
       }
     },
+
+    ping(ws,data){
+      Promise.resolve(setImmediate(()=>{},100000));
+      ws.send(data.toString())
+    },
+    pong(ws,data){
+      ws.send(data.toString())
+    },
+
     message(ws, message) {
       const room = manager.getRoom(ws.data.code as string);
-      if (!room) return ws.close(1011,'Room not found');
+      if (!room) return ws.close(1011, "Room not found");
       const { type, payload } = JSON.parse(message as string);
       switch (type) {
+        case PING:
+          ws.ping(JSON.stringify({type: PING, payload: {timestamp: payload.timestamp}}));
+          break;
+        case STATE:
+          room.getState(ws);
+          break;
         case MOVE:
           room.handleMove(ws, payload.move);
           break;
@@ -82,4 +96,4 @@ const server = Bun.serve<Data>({
   },
 });
 
-console.log(`Server running on ${server.url}`)
+console.log(`Server running on ${server.url}`);

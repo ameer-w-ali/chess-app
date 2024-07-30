@@ -19,6 +19,7 @@
     "chess.js": "^1.0.0-beta.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "common": "link:common",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.417.0",
     "react": "^18.3.1",
@@ -29,7 +30,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/bun": "^1.1.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",

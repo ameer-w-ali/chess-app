@@ -3,14 +3,16 @@ import { Chess } from "chess.js";
 import Player from "./player";
 import Chessboard from "./chessboard";
 import { Square } from "react-chessboard/dist/chessboard/types";
-import { Message, MOVE } from "@/lib/message";
+import { INIT, Message, MOVE, STATE, Status } from "common";
 
 interface ChessComponentProps {
+  ping: number | null;
   messages: Message[];
   sendMessage: (message: Message) => void;
 }
 
 export default function ChessComponent({
+  ping,
   messages,
   sendMessage,
 }: ChessComponentProps) {
@@ -32,11 +34,17 @@ export default function ChessComponent({
   }>({});
 
   useEffect(() => {
-    if (messages.length > 0) {
-      setColor(messages[0].payload?.color!);
-      setAvatar1(messages[0].payload?.avatar!);
-      setAvatar2(messages[0].payload?.opponent!);
-    }
+    messages.find((m) => {
+      if (m.type === STATE && m.payload?.status === Status.IN_PROGRESS) {
+        setColor(m.payload?.color!);
+        setAvatar1(m.payload?.avatar!);
+        setAvatar2(m.payload?.opponent!);
+      } else if (m.type === INIT) {
+        setColor(m.payload?.color!);
+        setAvatar1(m.payload?.avatar!);
+        setAvatar2(m.payload?.opponent!);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -225,8 +233,9 @@ export default function ChessComponent({
   }
 
   return (
-    <div className="sm:w-[460px] w-full sm:rounded bg-neutral-600">
+    <div className="md:col-span-3 md:row-span-3 sm:min-w-[460px] sm:rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2">
       <Player
+        ping={ping}
         name={color === "black" ? "Player 1" : "Player 2"}
         num={avatar2}
         active={game.turn() !== color[0]}
@@ -247,6 +256,7 @@ export default function ChessComponent({
         />
       </div>
       <Player
+        ping={ping}
         name={color === "white" ? "Player 1" : "Player 2"}
         num={avatar1}
         active={game.turn() === color[0]}

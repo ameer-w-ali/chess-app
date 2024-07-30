@@ -10,7 +10,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-7xl font-black text-center text-lime-600">
             CHESS ROOM
           </h2>
-          <div className="flex max-sm:space-x-4 sm:justify-around mt-6 sm:mt-12 items-center">
+          <div className="flex space-x-4 md:justify-around mt-6 md:mt-12 items-center">
             <CreateRoom />
             <JoinRoom />
           </div>

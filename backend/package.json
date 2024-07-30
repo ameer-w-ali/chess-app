@@ -5,14 +5,17 @@
     "@types/bun": "latest"
   },
   "scripts": {
-    "dev":"bun --watch server.ts",
-    "build":"bun build server.ts --outdir dist --target node --minify",
-    "clean":"rm -rf dist"
+    "dev": "bun --hot server.ts",
+    "build": "bun build server.ts --outdir dist --target node --minify",
+    "clean": "rm -rf dist"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "chess.js": "^1.0.0-beta.8"
+    "@types/uuid": "^10.0.0",
+    "chess.js": "^1.0.0-beta.8",
+    "common": "link:common",
+    "uuid": "^10.0.0"
   }
 }

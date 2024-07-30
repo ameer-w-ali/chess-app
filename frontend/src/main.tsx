@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Room from "./pages/room.tsx";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import Layout from "./Layout.tsx";
+import Temp from "./components/Temp.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
         path: "room/:slug",
         element: <Room />,
       },
+      {
+        path:"temp",
+        element:<Temp />
+      }
     ]
   },
 ]);

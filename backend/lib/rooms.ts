@@ -1,10 +1,11 @@
 import { Game } from "./game";
-import { ERROR } from "./message";
+import { ERROR, STATE, Status } from "common";
 import type { ServerWebSocket } from "bun";
 
 export class Room {
   code: string;
   users: number;
+  private state: Status;
   private players: ServerWebSocket<unknown>[];
   private game?: Game;
 
@@ -12,6 +13,7 @@ export class Room {
     this.code = code;
     this.players = [player];
     this.users = this.players.length;
+    this.state = Status.NOT_STARTED;
   }
 
   addPlayer(player: ServerWebSocket<unknown>) {
@@ -23,7 +25,10 @@ export class Room {
       this.users = this.players.length;
     } else {
       player.send(
-        JSON.stringify({ type: ERROR, payload:{message: "Only 2 Players are allowed"} })
+        JSON.stringify({
+          type: ERROR,
+          payload: { message: "Only 2 Players are allowed" },
+        })
       );
       player.close();
     }
@@ -37,9 +42,20 @@ export class Room {
     }
   }
 
+  getState(player: ServerWebSocket<unknown>) {
+    const user = this.game?.getPlayer(player);
+    if (!user && this.game)
+      return player.send(
+        JSON.stringify({ type: ERROR, payload: { message: "User not Found" } })
+      );
+    const payload = { status: this.state, ...user };
+    player.send(JSON.stringify({ type: STATE, payload }));
+  }
+
   private initiateGame() {
     if (!this.game) {
       this.game = new Game(this.players[0], this.players[1]);
+      this.state = Status.IN_PROGRESS;
     }
   }
 
@@ -49,7 +65,10 @@ export class Room {
     this.users = 0;
   }
 
-  handleMove(player: ServerWebSocket<unknown>, move: {from:string,to:string}) {
+  handleMove(
+    player: ServerWebSocket<unknown>,
+    move: { from: string; to: string }
+  ) {
     if (this.game) {
       console.log(move);
       this.game.makeMove(player, move);
@@ -62,5 +81,6 @@ export class Room {
 
   handleGameOver(player: ServerWebSocket<unknown>) {
     this.removePlayer(player);
+    this.state = Status.ABANDONED;
   }
 }

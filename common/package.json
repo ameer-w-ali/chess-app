@@ -1,0 +1,5 @@
+{
+  "name": "common",
+  "main": "message.ts",
+  "version": "1.0.0"
+}
