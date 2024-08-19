@@ -3,7 +3,10 @@ import { Chess } from "chess.js";
 import Player from "./player";
 import Chessboard from "./chessboard";
 import { Square } from "react-chessboard/dist/chessboard/types";
-import { INIT, Message, MOVE, STATE, Status } from "common";
+import { GAME_OVER, INIT, Message, MOVE, STATE, Status } from "common";
+import { Dialog, DialogContent, DialogDescription,DialogFooter,DialogHeader, DialogTitle } from "./ui/dialog";
+import { Link } from "react-router-dom";
+import { buttonVariants } from "./ui/button";
 
 interface ChessComponentProps {
   ping: number | null;
@@ -16,6 +19,7 @@ export default function ChessComponent({
   messages,
   sendMessage,
 }: ChessComponentProps) {
+  const [winner, setWinner] = useState("");
   const [color, setColor] = useState<"black" | "white">("white");
   const [avatar1, setAvatar1] = useState(0);
   const [avatar2, setAvatar2] = useState(0);
@@ -52,12 +56,15 @@ export default function ChessComponent({
     if (latest.type === MOVE && latest.payload && latest.payload.move) {
       const gameCopy = new Chess(game.fen());
       const move = latest.payload?.move;
-      const moveResult = gameCopy.move({ from: move.from, to: move.to });
+      const moveResult = gameCopy.move(move);
       if (moveResult) {
         setGame(gameCopy);
       } else {
         console.error(`Invalid move: ${latest.payload?.move}`);
       }
+    }
+    if(latest.type === GAME_OVER && latest.payload && latest.payload.winner) {
+      setWinner(latest.payload.winner);
     }
   }, [messages]);
 
@@ -96,7 +103,7 @@ export default function ChessComponent({
 
     if (!moveFrom) {
       if (game.get(square)?.color !== color[0] || game.turn() !== color[0]) {
-        return; // Only allow moving own pieces when it's your turn
+        return;
       }
       const hasMoveOptions = getMoveOptions(square);
       if (hasMoveOptions) setMoveFrom(square);
@@ -148,7 +155,7 @@ export default function ChessComponent({
 
       sendMessage({
         type: MOVE,
-        payload: { move: { from: move.from, to: move.to } },
+        payload: { move: move.san },
       });
 
       setMoveFrom("");
@@ -165,7 +172,7 @@ export default function ChessComponent({
   ): boolean {
     if (piece && promoteFromSquare && promoteToSquare) {
       const gameCopy = new Chess(game.fen());
-      gameCopy.move({
+      const move = gameCopy.move({
         from: promoteFromSquare,
         to: promoteToSquare,
         promotion: piece[1].toLowerCase() ?? "q",
@@ -177,7 +184,7 @@ export default function ChessComponent({
       setOptionSquares({});
       sendMessage({
         type: MOVE,
-        payload: { move: { from: promoteFromSquare, to: promoteToSquare } },
+        payload: { move: move.san },
       });
       return true;
     }
@@ -191,7 +198,7 @@ export default function ChessComponent({
 
   function onPieceDrop(sourceSquare: Square, targetSquare: Square): boolean {
     if (game.turn() !== color[0]) {
-      return false; // Only allow dropping pieces when it's your turn
+      return false;
     }
 
     try {
@@ -210,7 +217,7 @@ export default function ChessComponent({
         setGame(gameCopy);
         sendMessage({
           type: MOVE,
-          payload: { move: { from: move.from, to: move.to } },
+          payload: { move: move.san },
         });
       }
 
@@ -233,12 +240,12 @@ export default function ChessComponent({
   }
 
   return (
-    <div className="md:col-span-3 md:row-span-3 sm:min-w-[460px] sm:rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2">
+    <div className="md:col-span-3 md:row-span-4 sm:min-w-[40px] sm:rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2">
       <Player
         ping={ping}
         name={color === "black" ? "Player 1" : "Player 2"}
         num={avatar2}
-        active={game.turn() !== color[0]}
+        active={!winner && game.turn() !== color[0]}
       />
       <div className="w-full sm:px-3">
         <Chessboard
@@ -259,8 +266,23 @@ export default function ChessComponent({
         ping={ping}
         name={color === "white" ? "Player 1" : "Player 2"}
         num={avatar1}
-        active={game.turn() === color[0]}
+        active={!winner && game.turn() === color[0]}
       />
+      <Dialog open={!!winner}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Game Over</DialogTitle>
+            <DialogDescription>
+              {winner === "white" ? "White" : "Black"} wins the game!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Link to={`/`} className={buttonVariants()}>
+              New Game
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,11 +1,9 @@
 import { Manager } from "./lib/manager";
-import { ERROR, GAME_OVER, MOVE, PING, STATE } from "common";
+import { ERROR, GAME_OVER, MESSAGE, MOVE, PING, STATE } from "common";
 
 type Data = {
   code: string;
 };
-
-let count = 0;
 const manager = new Manager();
 
 const server = Bun.serve<Data>({
@@ -37,13 +35,12 @@ const server = Bun.serve<Data>({
     return new Response(`${error.stack}`, {
       status: 500,
       headers: {
-        "Content-Type": "text/text",
+        "Content-Type": "application/json",
       },
     });
   },
   websocket: {
     open(ws) {
-      console.log(`user count:${++count}`);
       const room = manager.fetchRoom(ws.data.code, ws);
       if (!room) {
         ws.close(1011, "Room not found");
@@ -72,6 +69,9 @@ const server = Bun.serve<Data>({
         case MOVE:
           room.handleMove(ws, payload.move);
           break;
+        case MESSAGE:
+          room.handleMessages(ws,payload.message);
+          break;
         case GAME_OVER:
           room.handleGameOver(ws);
           break;
@@ -85,7 +85,6 @@ const server = Bun.serve<Data>({
       }
     },
     close(ws) {
-      console.log(`user count:${--count}`);
       const room = manager.getRoom(ws.data.code as string);
       if (!room) return;
       room.removePlayer(ws);

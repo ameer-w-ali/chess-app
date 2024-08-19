@@ -1,5 +1,5 @@
 import { Game } from "./game";
-import { ERROR, STATE, Status } from "common";
+import { ERROR, MESSAGE, STATE, Status } from "common";
 import type { ServerWebSocket } from "bun";
 
 export class Room {
@@ -65,18 +65,33 @@ export class Room {
     this.users = 0;
   }
 
-  handleMove(
-    player: ServerWebSocket<unknown>,
-    move: { from: string; to: string }
-  ) {
+  handleMove(player: ServerWebSocket<unknown>, move: string) {
     if (this.game) {
-      console.log(move);
       this.game.makeMove(player, move);
     } else {
       player.send(
         JSON.stringify({ type: "ERROR", message: "Game not started" })
       );
     }
+  }
+
+  handleMessages(player: ServerWebSocket<unknown>, message: string) {    
+    this.players.forEach((p) => {
+      if (p !== player)
+        p.send(
+          JSON.stringify({
+            type: MESSAGE,
+            payload: { message, type: "recieved" },
+          })
+        );
+      else
+        p.send(
+          JSON.stringify({
+            type: MESSAGE,
+            payload: { message, type: "sent" },
+          })
+        );
+    });
   }
 
   handleGameOver(player: ServerWebSocket<unknown>) {

@@ -1,3 +1,4 @@
+import Chat from "@/components/chat";
 import Chess from "@/components/chess";
 import Ledger from "@/components/ledger";
 import useWebSocket from "@/hooks/useWebSocket";
@@ -9,7 +10,9 @@ export default function Room() {
   const params = useParams();
   const code = params.slug;
 
-  const [messages, status, ping, sendMessage] = useWebSocket(code as string);
+  const [messages, status, ping, moves, sendMessage] = useWebSocket(
+    code as string
+  );
 
   useEffect(() => {
     if (status === Status.NOT_STARTED) {
@@ -46,12 +49,10 @@ export default function Room() {
     );
 
   return (
-    <div className="grid md:grid-cols-8 md:grid-rows-3 gap-4 md:h-dvh sm:p-4 bg-neutral-300 dark:bg-neutral-900">
+    <div className="grid md:grid-cols-8 md:grid-rows-4 gap-4 md:h-dvh sm:p-4 bg-neutral-300 dark:bg-neutral-900 max-w-screen-xl">
       <Chess ping={ping} messages={messages} sendMessage={sendMessage} />
-      <Ledger messages={messages} />
-      <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg md:row-span-1 md:col-span-5">
-        hello
-      </div>
+      <Ledger moves={moves} />
+      <Chat messages={messages} sendMessage={sendMessage}/>
     </div>
   );
 }

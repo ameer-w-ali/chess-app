@@ -1,5 +1,5 @@
 import { Avatar, AvatarImage } from "./ui/avatar";
-import { Ban, SignalHigh, SignalLow, SignalMedium } from "lucide-react";
+import { Ban } from "lucide-react";
 import Clock from "./clock";
 import { memo } from "react";
 
@@ -19,10 +19,10 @@ export default function Player({ ping, name, num, active }: PropTypes) {
         </Avatar>
         <div className="flex gap-x-3">
           <h2 className="font-bold sm:text-lg text-xs">{name}</h2>
-          <Ping ping={50} />
+          <Ping ping={ping} />
         </div>
       </div>
-        <Clock active={active} />
+      <Clock active={active} />
     </div>
   );
 }
@@ -32,7 +32,7 @@ const Ping = memo(function PING({ ping }: { ping: number | null }) {
     return (
       <Ban
         strokeWidth={3}
-        className=" text-gray-600 dark:text-gray-400 animate-pulse"
+        className="text-gray-600 dark:text-gray-400 animate-pulse"
       />
     );
   const getOpacity = (index: number) => {

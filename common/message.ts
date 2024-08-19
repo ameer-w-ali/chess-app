@@ -5,6 +5,7 @@ export const INVALID_MOVE = "invalid move";
 export const GAME_OVER = "game over";
 export const STATE = "state";
 export const PING = "ping";
+export const MESSAGE = "message";
 
 export enum Status {
   NOT_STARTED = "not_started",
@@ -25,20 +26,20 @@ export interface Message {
     | typeof INVALID_MOVE
     | typeof GAME_OVER
     | typeof STATE
-    | typeof PING;
+    | typeof PING
+    | typeof MESSAGE;
   payload?: {
+    type?: "sent" | "recieved";
     status?: Status;
     error?: string;
     message?: string;
-    move?: { from: string; to: string };
+    move?: string;
     color?: "white" | "black";
     winner?: "white" | "black";
     avatar?: number;
     opponent?: number;
     timestamp?: number;
-    history?: { move: { from: string; to: string }; timestamp: number }[];
+    history?: { move: string; timestamp: number }[];
     fen?: string;
   };
 }
-
-

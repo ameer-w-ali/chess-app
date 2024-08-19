@@ -14,7 +14,7 @@ export class Game {
     avatar: number;
   };
   board: Chess;
-  history: { move: { from: string; to: string }; timestamp: number }[];
+  history: { move: string; timestamp: number }[];
 
   constructor(p1: ServerWebSocket<unknown>, p2: ServerWebSocket<unknown>) {
     this.player1 = {
@@ -58,7 +58,7 @@ export class Game {
 
   makeMove(
     socket: ServerWebSocket<unknown>,
-    move: { from: string; to: string }
+    move: string
   ) {
     const turn = this.board.turn() === "w" ? this.player1.socket : this.player2.socket;
     if (socket !== turn) {

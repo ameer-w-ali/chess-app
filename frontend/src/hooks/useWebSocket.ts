@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { INIT, Message, PING, STATE, Status } from "common";
+import { INIT, Message, MOVE, PING, STATE, Status } from "common";
 
 export default function useWebSocket(code: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<Status>(Status.NOT_STARTED);
   const [ping, setPing] = useState<number | null>(null);
+  const [moves, setMoves] = useState<string[]>([]);
   const ws = useRef<WebSocket | null>(null);
 
   const sendPing = () => {
@@ -20,8 +21,7 @@ export default function useWebSocket(code: string) {
     ws.current.onopen = () => {
       console.log("WebSocket connected");
       ws.current!.send(JSON.stringify({ type: STATE }));
-      setPing(250);
-      // sendPing();
+      sendPing();
     };
 
     ws.current.onmessage = (event: MessageEvent) => {
@@ -29,10 +29,13 @@ export default function useWebSocket(code: string) {
       const message: Message = JSON.parse(event.data);
       if (message.type === PING) {
         setPing(end - message.payload!.timestamp!);
-        // setTimeout(sendPing, 5000);
+        setTimeout(sendPing, 5000);
       }
       if (message.type === INIT || message.type === STATE) {
         setStatus(message.payload?.status!);
+      }
+      if (message.type === MOVE) {
+        setMoves((prevMoves) => [...prevMoves, message.payload?.move!]);
       }
       if (message.type !== PING) {
         setMessages((prevMessages) => [...prevMessages, message]);
@@ -55,8 +58,11 @@ export default function useWebSocket(code: string) {
   const sendMessage = (message: Message) => {
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(message));
+      if (message.type === MOVE) {
+        setMoves((prevMoves) => [...prevMoves, message.payload?.move!]);
+      }
     }
   };
 
-  return [messages, status, ping, sendMessage] as const;
+  return [messages, status, ping, moves, sendMessage] as const;
 }
